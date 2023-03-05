@@ -11,6 +11,22 @@ However, it can be directly connected to the controller's ports and have its cod
 porem pode ser ligado direto nas portas do controlador e ter seu código adaptado, fique a vontade para melhorar o código.
 
 # A complete list of materials and the project can be found at:
+- Project
 
 - List of materials:
-- Project
+
+| Quantity | Description |
+|------|-------|
+|1 | Arduino Nano|
+|4 | 10k resistors|
+|5 | PushButton|
+|1 | LM35|
+|1 | LCD16x2 with PCF8574 driver|
+|2 | PC81C|
+|2 | 330R resistors|
+|2 | 12v coil relays|
+|4 | OUT terminals (\FAN-\FAN+\RES+RES-)    |
+|4 | IN terminals (5v +\5v -\12v +\12v-)|
+OBS	In the next version, I will remove the 5V input and add a voltage regulator.
+
+
