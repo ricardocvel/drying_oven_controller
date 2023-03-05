@@ -1,27 +1,38 @@
+/**
+ * @file main.cpp
+ * @brief software for controll temperature of oven.
+ *
+ * This software is used to control a drying oven for removing moisture from 3D printer filaments,
+ * so it has some fixed parameters. You can find more details about the hardware
+ * at: https://github.com/ricardocvel/drying_oven_controller/blob/master/outers/hardware/hardware.JPG."
+ *
+ * @author ricardo Campos ricardocampos_pr@live.com
+ * @date   March 5, 2023
+ */
 
 #include <Arduino.h>
 #include <Wire.h>                 
 #include <LiquidCrystal_I2C.h>   
-// Configura endereço I2C e display com 16 caracteres e 2 linhas 
+// Configure I2C address and display with 16 characters and 2 lines
 LiquidCrystal_I2C lcd(0x20, 16, 2);  
 
 //ports in
-const int btUp = 8;
-const int btDown= 9;
-const int btRd = 10;
-const int btLf = 11;
+const int btUp = 11;
+const int btDown= 10;
+const int btRd = 8;
+const int btLf = 9;
 const int enter = 12;
 
 //ports out
 const int aquece = 7;
 const int resfria = 6;
-//sensor de temperatura
+//sensor de temp
 const int sensor=A0; 
 
 int thisChar = 0;
 
-float tempc; //variable to store temperature in degree Celsius
-float sensorTemp; //temporary variable to hold sensor reading
+float tempc; 
+float sensorTemp; 
 int temMax = 50;
 int tolerancia = 2;
 
@@ -55,7 +66,7 @@ void setup()
   pinMode(sensor,INPUT); 
 
   lcd.init();                      
-  lcd.backlight();  //backlight
+  lcd.backlight();
   if(sempreLigado){
     digitalWrite(resfria, HIGH);
   }
@@ -82,7 +93,7 @@ void verificaTemperatura(){
     digitalWrite(aquece, LOW);
   }
 
-  /** função fan liga conforme temperatura*/
+  /** fan function start for temp*/
   if (exaustor){
     if (tempc + tolerancia > temMax){
       digitalWrite(resfria, HIGH);
@@ -90,17 +101,17 @@ void verificaTemperatura(){
     } else {
       digitalWrite(resfria, LOW);
     }
-  /** função fan sempre ligado*/
+  /** fan function always on*/
   } else if(sempreLigado){
-    if(!digitalRead(resfria)){
+    if(digitalRead(resfria) == false){
       digitalWrite(resfria, HIGH);
     }
-  /** função fan intermitente*/
+  /** fan function intermittent*/
   } else if(intermitente){
-    if(fanHtzControl > 1000 && digitalRead(resfria)){
+    if(fanHtzControl > 100 && digitalRead(resfria) == true){
       digitalWrite(resfria, LOW);
       fanHtzControl = 0;
-    } else if(fanHtzControl > 1000 && !digitalRead(resfria)){
+    } else if(fanHtzControl > 100 && digitalRead(resfria) == false){
       digitalWrite(resfria, HIGH);
       fanHtzControl = 0;
     } else {
@@ -116,7 +127,7 @@ void menu(){
   int controleMenu = 0;
   lcd.clear();  
   lcd.setCursor(0, 0);
-  lcd.print("use o botão ↓ ↑");
+  lcd.print("use o botao ^");
   lcd.setCursor(2, 1);
   lcd.print("Escolha c/ OK");
   while (menu)
@@ -295,7 +306,7 @@ void menuFan(){
 
   lcd.clear();  
   lcd.setCursor(0, 0);
-  lcd.print("use o botão ↓ ↑");
+  lcd.print("use o botão ^");
   lcd.setCursor(2, 1);
   lcd.print("Escolha c/ OK");
   while (true)
@@ -393,19 +404,41 @@ void lerHorizontaisButons(int* itemMenu, int* enterMenu, int maiorValor){
 }
 
 void mostrarTemperatura() {
-  char* valor = conversorFloat(tempc);
-  char bufferTemp[32];
-  char bufferStatus[32];
-  const char* statusFan = (digitalRead(resfria) == HIGH) ? "Lig" : "Des";
-  const char* statusRes = (digitalRead(aquece) == HIGH) ? "Lig" : "Des";
-  sprintf(bufferTemp, "Temperatura: %s°", valor);
-  sprintf(bufferStatus, "Fan: %s, Resist.: %s", statusFan,statusRes); // adiciona o ponto e vírgula aqui
+  // char* valor = conversorFloat(tempc);
+  // char bufferTemp[32];
+  // char bufferStatus[32];
+
+  const char* statusFan = []() {
+    if (digitalRead(resfria)) {
+        return "Lig";
+    } else {
+        return "Des";
+    }
+  }();
+
+  const char* statusRes = []() {
+    if (digitalRead(aquece)) {
+        return "Lig";
+    } else {
+        return "Des";
+    }
+  }();
+
+  // sprintf(bufferTemp, "Temperatura: %s°", valor);
+  // sprintf(bufferStatus, "Fan: %s, Resist.: %s", statusFan,statusRes); 
   lcd.setCursor(0, 0);
-  lcd.print(bufferTemp);
-  lcd.rightToLeft();            // imprime da direita para a esquerda
-  lcd.setCursor(2, 1);
-  lcd.print(bufferStatus);
-  free(valor);
+  lcd.print( "Temp.:");
+  lcd.setCursor(8, 0);
+  lcd.print(tempc);
+  lcd.setCursor(0, 1);
+  lcd.print("Fan");
+  lcd.setCursor(4, 1);
+  lcd.print(statusFan);
+  lcd.setCursor(7, 1);
+  lcd.print(" - Res");
+  lcd.setCursor(14, 1);
+  lcd.print(statusRes);
+  // free(valor);
 }
 
 char* conversorFloat(float valor) {
