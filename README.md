@@ -12,7 +12,7 @@ porem pode ser ligado direto nas portas do controlador e ter seu código adaptad
 
 # A complete list of materials and the project can be found at:
 - Project
-
+ ![Project](https://raw.githubusercontent.com/ricardocvel/drying_oven_controller/master/outers/hardware/hardware.JPG) .
 - List of materials:
 
 | Quantity | Description |
