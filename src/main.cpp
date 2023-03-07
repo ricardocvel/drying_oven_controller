@@ -43,8 +43,15 @@ bool intermitente = true;
 bool statusFan = false; 
 int fanHtzControl = 0;
 
-void lerVerticaButtons(int* itemMenu, int* enterMenu, int maiorValor);
-void lerHorizontaisButons(int* itemMenu, int* enterMenu, int maiorValor);
+struct MenuData {
+  int itemMenu;
+  int enterMenu;
+  int controleMenu;
+  MenuData() : itemMenu(0), enterMenu(0), controleMenu(0) {}
+};
+
+void lerVerticaButtons(MenuData* data, int maiorValor);
+void lerHorizontaisButons(MenuData* data, int maiorValor);
 char* conversorFloat(float valor);
 void verificaTemperatura();
 void mostrarTemperatura();
@@ -52,6 +59,7 @@ void clenerConfigFan();
 void defineTemp();
 void menuTemp();
 void menuFan();
+void pDebugger(int valor);
 void menu();
 
 void setup()
@@ -79,7 +87,7 @@ void loop()
   
   verificaTemperatura();
   mostrarTemperatura();
-  delay(500);
+  delay(100);
   lcd.clear();  
 }
 
@@ -119,27 +127,25 @@ void verificaTemperatura(){
     }
   }
 }
-
 void menu(){
+  MenuData data;
   bool menu = true;
-  int itemMenu = 0;
-  int enterMenu = 0;
-  int controleMenu = 0;
   lcd.clear();  
   lcd.setCursor(0, 0);
   lcd.print("use o botao ^");
   lcd.setCursor(2, 1);
   lcd.print("Escolha c/ OK");
+  data.enterMenu = 1;
   while (menu)
   {
-    lerVerticaButtons(&itemMenu, &enterMenu, 2);
-    if(enterMenu == 1){
-      controleMenu = itemMenu + 1;
-      switch (itemMenu)
+    lerVerticaButtons(&data, 3);
+    if(data.enterMenu == 1){
+      data.controleMenu = data.itemMenu + 1;
+      switch (data.itemMenu)
       {
-      case 0:
+      case 3:
         menu = false;
-        return;
+        break;
       case 1:
         menuTemp();
         break;
@@ -150,11 +156,11 @@ void menu(){
         break;
       }
     }
-    if(itemMenu != controleMenu){
-      controleMenu = itemMenu;
-      switch(itemMenu)
+    if(data.itemMenu != data.controleMenu){
+      data.controleMenu = data.itemMenu;
+      switch(data.itemMenu)
       {
-      case 0 :
+      case 3 :
         //sair
         lcd.clear();  
         lcd.setCursor(0, 0);
@@ -182,22 +188,28 @@ void menu(){
         break;
       }
     }
-    delay(50);
+    delay(100);
   }
 }
 
 void menuTemp(){
-  int itemMenu = 0;
-  int enterMenu = 0;
-  int controleMenu = 0;
+  MenuData dataTemp;
+  // bool menu = true;
+  lcd.clear();  
+  lcd.setCursor(0, 0);
+  lcd.print("use o botao ^");
+  lcd.setCursor(2, 1);
+  lcd.print("Escolha c/ OK");
+  dataTemp.enterMenu = 1;
+
   while (true)
   {
-    lerHorizontaisButons(&itemMenu, &enterMenu, 2);
-    if(enterMenu == 1){
-      controleMenu = itemMenu + 1;
-      switch (itemMenu)
+    lerVerticaButtons(&dataTemp, 3);
+    if(dataTemp.enterMenu == 1){
+      dataTemp.controleMenu = dataTemp.itemMenu + 1;
+      switch (dataTemp.itemMenu)
       {
-      case 0:
+      case 3:
         return;
       case 1:
         defineTemp();
@@ -209,11 +221,11 @@ void menuTemp(){
         break;
       }
     }
-    if(itemMenu != controleMenu){
-    controleMenu = itemMenu;
-      switch (itemMenu)
+    if(dataTemp.itemMenu != dataTemp.controleMenu){
+    dataTemp.controleMenu = dataTemp.itemMenu;
+      switch (dataTemp.itemMenu)
       {
-        case 0 :
+        case 3 :
             //sair
             lcd.clear();  
             lcd.setCursor(0, 0);
@@ -241,68 +253,67 @@ void menuTemp(){
             break;
       }
     }
-    delay(50);
+    delay(100);
   }
 }
 
 void defineTemp(){
-  int itemTemp = temMax;
-  int enterTemp = 0;
-  char* valor = conversorFloat(tempc);
-  char bufferTemp[32];
-  sprintf(bufferTemp, "modificar < %d.00° >", temMax);
+  MenuData dataDefineTemp;
+  dataDefineTemp.enterMenu = 1;
+  lcd.clear();  
   lcd.setCursor(0, 0);
   lcd.print("Temperatura Max");
-  lcd.rightToLeft();    
   lcd.setCursor(2, 1);
-  lcd.print(bufferTemp);
-  free(valor);
+  lcd.print("<");
+  lcd.setCursor(5, 1);
+  lcd.print(dataDefineTemp.itemMenu);
+  lcd.setCursor(8, 1);
+  lcd.print(".00° >");
   while (true)
   {
-    lerHorizontaisButons(&itemTemp, &enterTemp, 70);
-    if(enterTemp){
-      temMax = itemTemp;
+    lerHorizontaisButons(&dataDefineTemp, 70);
+    if( dataDefineTemp.enterMenu){
+      temMax = dataDefineTemp.itemMenu;
       return;
     }
-    sprintf(bufferTemp, "modificar: < %d.00° >", itemTemp);
-    lcd.setCursor(2, 1);
-    lcd.print(bufferTemp);
-    delay(50);
+
+    lcd.setCursor(5, 1);
+    lcd.print(dataDefineTemp.itemMenu);
+    delay(100);
   }
 }
 
 void defineTolerancia(){
+  MenuData dataTol;
+  dataTol.enterMenu = 1;
+
   int itemTol = tolerancia;
   int enterTol = 0;
-  char* valor = conversorFloat(tempc);
-  char bufferTol[32];
-  sprintf(bufferTol, "modificar < %d.00° >", tolerancia);
+  lcd.clear();  
   lcd.setCursor(0, 0);
   lcd.print("Tolerancia Max");
   lcd.rightToLeft();    
   lcd.setCursor(2, 1);
-  lcd.print(bufferTol);
-  free(valor);
+  lcd.print("<");
+  lcd.setCursor(5, 1);
+  lcd.print(tolerancia);
+  lcd.setCursor(7, 1);
+  lcd.print(".00° >");
   while (true)
   {
-    lerHorizontaisButons(&itemTol, &enterTol, 70);
-    if(enterTol){
-      tolerancia = itemTol;
+    lerHorizontaisButons(&dataTol, 10);
+    if(dataTol.enterMenu){
+      tolerancia = dataTol.itemMenu;
       return;
     }
-    sprintf(bufferTol, "modificar: < %d.00° >", itemTol);
-    lcd.setCursor(2, 1);
-    lcd.print(bufferTol);
-    delay(50);
+    lcd.setCursor(5, 1);
+    lcd.print(dataTol.itemMenu);
+    delay(100);
   }
 }
 
 void menuFan(){
-  int itemFan = 0;
-  int enterFan = 0;
-  int controleMenu = 0;
-  // char* valor = conversorFloat(tempc);
-  // char bufferFan[32];
+  MenuData datafan;
 
   lcd.clear();  
   lcd.setCursor(0, 0);
@@ -311,9 +322,9 @@ void menuFan(){
   lcd.print("Escolha c/ OK");
   while (true)
   {
-    lerVerticaButtons(&itemFan, &enterFan, 2);
-    if(enterFan){
-      switch (itemFan)
+    lerVerticaButtons(&datafan, 2);
+    if(datafan.enterMenu){
+      switch (datafan.itemMenu)
       {
       case 0:
         clenerConfigFan();
@@ -332,9 +343,9 @@ void menuFan(){
       }
       return;
     }
-    if(itemFan != controleMenu){
-    controleMenu = itemFan;
-      switch (itemFan)
+    if(datafan.itemMenu != datafan.controleMenu){
+    datafan.controleMenu = datafan.itemMenu;
+      switch (datafan.itemMenu)
       {
         case 0 :
             lcd.clear();  
@@ -363,7 +374,7 @@ void menuFan(){
             break;
       }
     }
-    delay(50);
+    delay(100);
   }
 }
 
@@ -373,40 +384,42 @@ void clenerConfigFan(){
   intermitente = false;
 }
 
-void lerVerticaButtons(int* itemMenu, int* enterMenu, int maiorValor){
-    if(digitalRead(enter) == true){
-      *enterMenu = 1;
+void lerVerticaButtons(MenuData* data, int maiorValor){
+  if(digitalRead(enter) == true){
+    data->enterMenu = 1;
+    return;
+  } else {
+    data->enterMenu = 0;
+  }
+  if(digitalRead(btDown) == true){
+    if(data->itemMenu < maiorValor){
+      data->itemMenu++;
     }
-    if(digitalRead(btDown) == true){
-      if(*itemMenu < maiorValor){
-        itemMenu++; 
-      }
-    }else if(digitalRead(btUp) == true){
-      if(*itemMenu > 0){
-        itemMenu--;
-      }
-    }
+  }else if(digitalRead(btUp) == true){
+    if(data->itemMenu > 1){
+      data->itemMenu--;
+    }    
+  }
 }
-
-void lerHorizontaisButons(int* itemMenu, int* enterMenu, int maiorValor){
-    if(digitalRead(enter) == true){
-      *enterMenu = 1;
+void lerHorizontaisButons(MenuData* data, int maiorValor){
+  if(digitalRead(enter) == true){
+    data->enterMenu = 1;
+    return;
+  } else {
+    data->enterMenu = 0;
+  }
+  if(digitalRead(btLf) == true){
+    if(data->itemMenu < maiorValor){
+      data->itemMenu++;
     }
-    if(digitalRead(btLf) == true){
-      if(*itemMenu < maiorValor){
-        itemMenu++; 
-      }
-    }else if(digitalRead(btRd) == true){
-      if(*itemMenu > 0){
-        itemMenu--;
-      }
-    }
+  }else if(digitalRead(btRd) == true){
+    if(data->itemMenu > 1){
+      data->itemMenu--;
+    }    
+  }
 }
 
 void mostrarTemperatura() {
-  // char* valor = conversorFloat(tempc);
-  // char bufferTemp[32];
-  // char bufferStatus[32];
 
   const char* statusFan = []() {
     if (digitalRead(resfria)) {
@@ -424,21 +437,29 @@ void mostrarTemperatura() {
     }
   }();
 
-  // sprintf(bufferTemp, "Temperatura: %s°", valor);
-  // sprintf(bufferStatus, "Fan: %s, Resist.: %s", statusFan,statusRes); 
   lcd.setCursor(0, 0);
   lcd.print( "Temp.:");
   lcd.setCursor(8, 0);
   lcd.print(tempc);
   lcd.setCursor(0, 1);
-  lcd.print("Fan");
-  lcd.setCursor(4, 1);
-  lcd.print(statusFan);
-  lcd.setCursor(7, 1);
-  lcd.print(" - Res");
-  lcd.setCursor(14, 1);
-  lcd.print(statusRes);
+  lcd.print(fanHtzControl);
+  // lcd.print("Fan");
+  // lcd.setCursor(4, 1);
+  // lcd.print(statusFan);
+  // lcd.setCursor(7, 1);
+  // lcd.print(" - Res");
+  // lcd.setCursor(14, 1);
+  // lcd.print(statusRes);
+
   // free(valor);
+}
+
+void pDebugger(int valor){
+  lcd.clear();  
+  lcd.setCursor(0, 0);
+  lcd.print("Debbug");
+  lcd.setCursor(2, 1);
+  lcd.print(valor);
 }
 
 char* conversorFloat(float valor) {
