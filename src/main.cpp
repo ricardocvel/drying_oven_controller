@@ -56,6 +56,7 @@ char* conversorFloat(float valor);
 void verificaTemperatura();
 void mostrarTemperatura();
 void clenerConfigFan();
+void defineTolerancia();
 void defineTemp();
 void menuTemp();
 void menuFan();
@@ -135,11 +136,11 @@ void menu(){
   lcd.print("use o botao ^");
   lcd.setCursor(2, 1);
   lcd.print("Escolha c/ OK");
-  data.enterMenu = 1;
   while (menu)
   {
     lerVerticaButtons(&data, 3);
     if(data.enterMenu == 1){
+      data.enterMenu = 0;
       data.controleMenu = data.itemMenu + 1;
       switch (data.itemMenu)
       {
@@ -194,28 +195,28 @@ void menu(){
 
 void menuTemp(){
   MenuData dataTemp;
-  // bool menu = true;
   lcd.clear();  
   lcd.setCursor(0, 0);
   lcd.print("use o botao ^");
   lcd.setCursor(2, 1);
-  lcd.print("Escolha c/ OK");
-  dataTemp.enterMenu = 1;
-
+  lcd.print("Escolha c OK");
+  dataTemp.enterMenu = 0;
   while (true)
   {
     lerVerticaButtons(&dataTemp, 3);
     if(dataTemp.enterMenu == 1){
       dataTemp.controleMenu = dataTemp.itemMenu + 1;
+      dataTemp.enterMenu = 0;
       switch (dataTemp.itemMenu)
       {
       case 3:
         return;
       case 1:
+        lcd.clear(); 
         defineTemp();
         break;
       case 2:
-        menuFan();
+        defineTolerancia();
         break;
       default:
         break;
@@ -259,20 +260,23 @@ void menuTemp(){
 
 void defineTemp(){
   MenuData dataDefineTemp;
-  dataDefineTemp.enterMenu = 1;
+  dataDefineTemp.itemMenu = temMax;
   lcd.clear();  
   lcd.setCursor(0, 0);
   lcd.print("Temperatura Max");
   lcd.setCursor(2, 1);
   lcd.print("<");
   lcd.setCursor(5, 1);
-  lcd.print(dataDefineTemp.itemMenu);
+  lcd.print(temMax);
   lcd.setCursor(8, 1);
-  lcd.print(".00° >");
+  lcd.print(".00 >");
+  dataDefineTemp.enterMenu = 0;
+  delay(1000);
   while (true)
   {
     lerHorizontaisButons(&dataDefineTemp, 70);
-    if( dataDefineTemp.enterMenu){
+    if( dataDefineTemp.enterMenu == 1){
+      dataDefineTemp.enterMenu = 0;
       temMax = dataDefineTemp.itemMenu;
       return;
     }
@@ -285,8 +289,8 @@ void defineTemp(){
 
 void defineTolerancia(){
   MenuData dataTol;
-  dataTol.enterMenu = 1;
-
+  dataTol.enterMenu = 0;
+  dataTol.itemMenu = tolerancia;
   int itemTol = tolerancia;
   int enterTol = 0;
   lcd.clear();  
@@ -298,17 +302,18 @@ void defineTolerancia(){
   lcd.setCursor(5, 1);
   lcd.print(tolerancia);
   lcd.setCursor(7, 1);
-  lcd.print(".00° >");
+  lcd.print(".00 >");
+  delay(1000);
   while (true)
   {
     lerHorizontaisButons(&dataTol, 10);
-    if(dataTol.enterMenu){
+    if(dataTol.enterMenu == 1){
       tolerancia = dataTol.itemMenu;
       return;
     }
     lcd.setCursor(5, 1);
     lcd.print(dataTol.itemMenu);
-    delay(100);
+    delay(300);
   }
 }
 
