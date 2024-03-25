@@ -10,7 +10,7 @@
 However, it can be directly connected to the controller's ports and have its code adapted. Feel free to improve the code.
 
 - Para esse controlador utilizei materiais que eu tinha em casa, ele é baseado em arduino nano e Sensor LM35, possui display de LCD 16x7 com driver,
-porem pode ser ligado direto nas portas do controlador e ter seu código adaptado, fique a vontade para melhorar o código.
+porem pode ser ligado direto nas portas do controlador e ter seu código adaptado, fique a vontade para melhorar o código. 
 
 # A complete list of materials and the project can be found at:
 - Project
